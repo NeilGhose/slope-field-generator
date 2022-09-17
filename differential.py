@@ -1,5 +1,5 @@
 import pygame as pg
-from numpy import sin, cos, e, pi, sqrt, arctan
+from numpy import sin, cos, e, pi, sqrt, arctan2
 
 class Graph:
   def __init__(self, eq, x_min, y_min, x_max, y_max):
@@ -18,9 +18,9 @@ class Graph:
   def c_to_c(self, x, y):
     return (int(self.xc_to_c(x)), int(self.yc_to_c(y)))
 
-  def draw_axes(self):
-    pg.draw.line(win, (0, 0, 0), (0, self.yc_to_c(0)), (win_size[0], self.yc_to_c(0)))
-    pg.draw.line(win, (0, 0, 0), (self.xc_to_c(0), 0), (self.xc_to_c(0), win_size[1]))
+  def draw_axes(self, color):
+    pg.draw.line(win, color, (0, self.yc_to_c(0)), (win_size[0], self.yc_to_c(0)))
+    pg.draw.line(win, color, (self.xc_to_c(0), 0), (self.xc_to_c(0), win_size[1]))
 
   def draw_graph(self):
     spacing = 100
@@ -42,24 +42,27 @@ class Differential(Graph):
   def __init__(self, eq, x_min, y_min, x_max, y_max):
     super().__init__(eq, x_min, y_min, x_max, y_max)
 
-  def draw_graph(self):
-    spacing = 1
-    d = .1
+  def draw_graph(self, color):
+    spacing = 50
+    d = (self.x_max - self.x_min)/200
     for x in range(spacing):
       x = x/spacing*(self.x_max-self.x_min)+self.x_min
       for y in range(spacing):
         y = y/spacing*(self.y_max-self.y_min)+self.y_min
         try:
-          dx = d*cos(arctan(eval(self.eq)))
-          dy = d*sin(arctan(eval(self.eq)))
+          dx = d*cos(arctan2(eval(self.eq), 1))
+          dy = d*sin(arctan2(eval(self.eq), 1))
         except:
           dx = 0
           dy = d
-        pg.draw.line(win, (0,0,0), super().c_to_c(x-dx, y-dy), super().c_to_c(x+dx, y+dy))
+        try:
+          pg.draw.line(win, color, super().c_to_c(x-dx, y-dy), super().c_to_c(x+dx, y+dy))
+        except:
+          pass
 
-  def draw(self):
-    super().draw_axes()
-    self.draw_graph()
+  def draw(self, a_color, d_color):
+    super().draw_axes(a_color)
+    self.draw_graph(d_color)
 
 class Particle:
   def __init__(self, P, V, f):
@@ -92,7 +95,7 @@ class Particle:
   def evaluate_closer(self):
     x = self.x
     y = self.y
-    v = (self.d*cos(arctan(eval(f.eq))), self.d*sin(arctan(eval(f.eq))))
+    v = (self.d*cos(arctan2(eval(f.eq))), self.d*sin(arctan2(eval(f.eq))))
     if self.closer(self.vx, cos):# or self.closer(self.vy, sin):
         return v
     else:
@@ -108,12 +111,14 @@ pg.init()
 win_size = (800,800)
 win=pg.display.set_mode(win_size, pg.RESIZABLE)
 pg.display.set_caption("Game")
-bg_color = (255,255,255)
+bg_color = (0,0,0)
+a_color = (100,100,100)
+d_color = (255,100,100)
 win.fill(bg_color)
 run = True
-f = Differential('-x/y', -10, -10, 10, 10)
+f = Differential('sin(x*y)', -100, -100, 100, 100)
 #p = Particle((5, 0), (0, 0), f)
-f.draw()
+f.draw(a_color, d_color)
 pg.display.update()
 while run:
   pg.time.delay(10)
@@ -128,7 +133,7 @@ while run:
             
     k = pg.key.get_pressed()
     #p.move()
-    f.draw()
+    f.draw(a_color, d_color)
         
     if k[pg.K_ESCAPE]:
       run=False
