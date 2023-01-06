@@ -1,15 +1,16 @@
-# Pool Simulator (WIP)
-Simulates the game of pool using python
+# slope field generator
+This program takes in a differential equation and generates its corresponding slope field.
 
 ## Installation
 ```
-# git clone https://github.com/NeilGhose/pool.git
+# git clone https://github.com/NeilGhose/slope-field-generator.git
 # pip3 install pygame
+# pip3 install numpy
 ```
 
 ## Setup
 
 3. Launch Program
 ```
-# python3 pool.py
+# python3 differential.py
 ```
